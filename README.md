@@ -71,3 +71,65 @@ https://www.kaggle.com/datasets/vivovinco/20222023-nba-player-stats-regular
 ### Creación Base de Datos 
 En SQL Server se crea la base de datos y se importan las tablas ya filtradas con las que se va a trabajar, para comenzar con la normalización de los datos realizando un tratamiento de los datos faltantes, una corroboración del tipo de dato de cada columna y  se realiza el casteo de la columna Date para establecerla como índice y así facilitar el análisis temporal.
 
+## Normalización de la base de Datos
+Cambios en las columnas:
+En la tabla “player_filtered”, se modificó el nombre de la columna “id” a “player_id”.
+En la tabla “filtered_common_player_info”, se realizaron dos cambios:
+La columna “person.id” se renombró como “player_id”.
+La columna “display_first_last” ahora se llama “full_name”.
+
+## Nuevas columnas en las tablas de estadísticas de jugadores:
+En las tablas “2021-2022 nba players stats”, “2022-2023 nba players stats regular” y “2022-2023 nba players stats playoffs”, se agregaron dos columnas:
+“season”: Esta columna contendrá el año de la temporada.
+“season_type”: Indicará en qué fase de la temporada se encuentran los partidos (por ejemplo, temporada regular o playoffs).
+
+## Creación de la tabla “player stats”:
+Se creó una nueva tabla llamada “player stats”.
+Esta tabla se formará mediante un union all con las tablas “2021-2022 nba players stats”, “2022-2023 nba players stats regular” y “2022-2023 nba players stats playoffs”
+Además, se añadirá una columna llamada “player_id” para asignar el identificador correspondiente a cada jugador.
+
+## Jugadores:
+Se llevó a cabo una operación de left join entre las tablas ‘filtered_common_player_info’ y ‘played_filtered’. Esta decisión se tomó debido a que ambas tablas contienen información similar sobre los jugadores de nuestra plantilla. Como resultado de esta unión, se creó una única tabla que incluye a los jugadores que serán objeto de nuestro análisis.
+
+## Normalización de los valores faltantes
+De la tabla common_player-info se insertaron los valores faltantes de tres jugadores de las posiciones que se tomaron de la tabla que traía la descripción por jugador 
+
+## Se realizó el diagrama Entidad Relación 
+Después de realizar el filtrado de las tablas, se procedió a establecer las Primary Keys (claves primarias) y las Foreign Keys (claves foráneas) para garantizar la integridad referencial y facilitar las relaciones entre las tablas. Las claves primarias se asignaron a aquellos campos que identifican de manera única a cada registro en sus respectivas tablas
+
+## Seguridad de la Base de Datos
+En el contexto de la administración de una base de datos en SQL Server, se han llevado a cabo los siguientes pasos para fortalecer la seguridad:
+Creación de un Inicio de Sesión (Login):
+Se ha creado un inicio de sesión (login) que permite a los usuarios autenticarse en el sistema.
+Este proceso garantiza que solo las personas autorizadas puedan acceder a la base de datos.
+Creación de un Usuario (User):
+Se ha definido un usuario asociado al inicio de sesión.
+Cada usuario tiene permisos específicos para interactuar con la base de datos.
+Asignación de Roles:
+Se ha asignado un rol al usuario.
+Los roles agrupan permisos y privilegios comunes. Por ejemplo, un rol de ‘Lectura’ podría permitir solo consultas, mientras que un rol de ‘Administrador’ tendría acceso completo.
+Configuración de Autenticación del Servidor SQL:
+Se ha modificado la configuración para requerir autenticación mediante nombre de usuario y contraseña al conectarse al servidor SQL.
+Esto añade una capa adicional de seguridad al proceso de inicio de sesión.
+
+
+## Automatización de ingesta de datos 
+Creación del Archivo CSV y Carga Inicial:
+Se genera un archivo CSV que contiene datos en bruto.
+Estos datos se cargarán posteriormente en nuestra base de datos SQL.
+Uso de Tabla Temporal como Puente:
+Se ejecuta un procedimiento almacenado que ingresa los datos del archivo CSV en una tabla temporal llamada “Players_Stats_temp”.
+Esta tabla temporal actúa como un puente entre los datos brutos y la tabla final deseada.
+Inserción en la Tabla Principal:
+A través de otro procedimiento almacenado, los datos de la tabla temporal se transfieren a la tabla “player_stats”.
+Esta tabla final contiene los datos estructurados y procesados.
+Limpieza de Datos Temporales:
+Una vez que los datos están en la tabla deseada, se eliminan los registros de la tabla “Players_Stats_temp”.
+Esto garantiza que solo los datos relevantes permanezcan en la base de datos.
+Automatización Mediante Archivo .bat:
+Para lograr la automatización de este proceso, se crea un archivo .bat.
+Mediante una tarea programada de Windows, este archivo .bat ejecuta automáticamente los procedimientos almacenados y carga los datos en la base de datos.
+Cabe destacar que los datos estadísticos de nuestros jugadores son recibidos semanalmente en una carpeta de Drive. https://docs.google.com/spreadsheets/d/1HcaEjB-oa6wSCyuJGlF29DeCel_hTiL1iWAMN2NekYw/edit?gid=1179889504#gid=1179889504
+Estos datos se transforman en un archivo plano en formato CSV, que se almacena en una carpeta especialmente designada para volcar la información en nuestra base de datos SQL. La manipulación de los datos será responsabilidad exclusiva del ingeniero de datos de la consultora. 
+
+
